@@ -61,32 +61,32 @@ A class MAY define::
     @classmethod
     def __parse__(cls, text: str, /) -> Self: ...
 
-1. **Domain.** ``text`` MUST be a ``str``. For any other argument,
+1. **Domain**: ``text`` MUST be a ``str``. For any other argument,
    ``__parse__`` MUST raise ``TypeError``.
-2. **Codomain.** On success, ``__parse__`` MUST return an instance of ``cls``
+2. **Codomain**: On success, ``__parse__`` MUST return an instance of ``cls``
    (subclass instances included).
-3. **Failure.** If ``text`` is not a representation of a value of ``cls``,
+3. **Failure**: If ``text`` is not a representation of a value of ``cls``,
    ``__parse__`` MUST raise ``ValueError`` or a subclass thereof.
-4. **Partiality.** ``__parse__`` is a partial function ``str`` ⇀ ``cls``. No
+4. **Partiality**: ``__parse__`` is a partial function ``str`` ⇀ ``cls``. No
    implementation is required to accept every ``str``.
-5. **Discovery.** ``T`` supports the protocol iff
+5. **Discovery**: ``T`` supports the protocol iff
    ``callable(getattr(T, "__parse__", None))``. Discovery MUST NOT invoke
    ``__parse__``. ``__parse__ = None`` disables the protocol for that class,
    per the existing ``__hash__ = None`` convention.
-6. **Non-inference.** A consumer MUST NOT infer support from a constructor
+6. **Non-inference**: A consumer MUST NOT infer support from a constructor
    accepting ``str``, from ``__str__``, or from ``__repr__``. Absent
    ``__parse__``, a consumer SHOULD raise ``TypeError``.
-7. **Inheritance.** ``__parse__`` is inherited. An inherited implementation
+7. **Inheritance**: ``__parse__`` is inherited. An inherited implementation
    MUST construct the class it was invoked on, never a base class. A subclass
    for which the inherited implementation is invalid SHOULD override it or set
    it to ``None``.
-8. **Syntax.** Accepted representations (whitespace, case, alternative
+8. **Syntax**: Accepted representations (whitespace, case, alternative
    spellings) are defined by each type; the protocol defines none.
-9. **Round-trip.** For a type defining both methods,
+9. **Round-trip**: For a type defining both methods,
    ``type(x).__parse__(str(x)) == x`` SHOULD hold whenever ``str(x)``
    determines ``x`` up to ``==``. It is not required. It CAN accept
    ``repr(x)``, but it is not required.
-10. **Dispatch.** No syntax or built-in invokes ``__parse__`` implicitly.
+10. **Dispatch**: No syntax or built-in invokes ``__parse__`` implicitly.
     ``T(text)``, ``str()`` and annotation evaluation are unchanged.
 
 The protocol is expressible as a ``typing.Protocol`` (:pep:`544`). A
@@ -130,7 +130,7 @@ define new ones.
 Non-goals
 =========
 
-- Not a serialization format.
+- No common serialization format: each type keeps its own grammar.
 - No recovery of the target type from the input: the type is a parameter of
   the operation.
 - No containers, object graphs or recursion: ``list[T]`` is a consumer's

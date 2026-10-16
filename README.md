@@ -2,18 +2,18 @@
 
 # `__parse__`: constructing instances from strings
 
-| Field          | Value                                                      |
-|----------------|------------------------------------------------------------|
-| PEP            | 9999                                                       |
-| Title          | `__parse__`: constructing instances from strings           |
-| Author         | Christiane Ruetten \<<cr@23bit.net>\> |
-| Sponsor        | TBD                                                        |
-| Discussions-To | Pending                                                    |
-| Status         | Draft                                                      |
-| Type           | Standards Track                                            |
-| Created        | 16-Oct-2026                                                |
-| Python-Version | TBD                                                        |
-| Post-History   | —                                                          |
+| Field          | Value                                            |
+|----------------|--------------------------------------------------|
+| PEP            | 9999                                             |
+| Title          | `__parse__`: constructing instances from strings |
+| Author         | Christiane Ruetten \<cr@23bit.net\>              |
+| Sponsor        | TBD                                              |
+| Discussions-To | Pending                                          |
+| Status         | Draft                                            |
+| Type           | Standards Track                                  |
+| Created        | 16-Oct-2026                                      |
+| Python-Version | TBD                                              |
+| Post-History   | —                                                |
 
 ## Abstract
 
@@ -46,16 +46,16 @@ A class MAY define:
     @classmethod
     def __parse__(cls, text: str, /) -> Self: ...
 
-1.  **Domain.** `text` MUST be a `str`. For any other argument, `__parse__` MUST raise `TypeError`.
-2.  **Codomain.** On success, `__parse__` MUST return an instance of `cls` (subclass instances included).
-3.  **Failure.** If `text` is not a representation of a value of `cls`, `__parse__` MUST raise `ValueError` or a subclass thereof.
-4.  **Partiality.** `__parse__` is a partial function `str` ⇀ `cls`. No implementation is required to accept every `str`.
-5.  **Discovery.** `T` supports the protocol iff `callable(getattr(T, "__parse__", None))`. Discovery MUST NOT invoke `__parse__`. `__parse__ = None` disables the protocol for that class, per the existing `__hash__ = None` convention.
-6.  **Non-inference.** A consumer MUST NOT infer support from a constructor accepting `str`, from `__str__`, or from `__repr__`. Absent `__parse__`, a consumer SHOULD raise `TypeError`.
-7.  **Inheritance.** `__parse__` is inherited. An inherited implementation MUST construct the class it was invoked on, never a base class. A subclass for which the inherited implementation is invalid SHOULD override it or set it to `None`.
-8.  **Syntax.** Accepted representations (whitespace, case, alternative spellings) are defined by each type; the protocol defines none.
-9.  **Round-trip.** For a type defining both methods, `type(x).__parse__(str(x)) == x` SHOULD hold whenever `str(x)` determines `x` up to `==`. It is not required. It CAN accept `repr(x)`, but it is not required.
-10. **Dispatch.** No syntax or built-in invokes `__parse__` implicitly. `T(text)`, `str()` and annotation evaluation are unchanged.
+1.  **Domain**: `text` MUST be a `str`. For any other argument, `__parse__` MUST raise `TypeError`.
+2.  **Codomain**: On success, `__parse__` MUST return an instance of `cls` (subclass instances included).
+3.  **Failure**: If `text` is not a representation of a value of `cls`, `__parse__` MUST raise `ValueError` or a subclass thereof.
+4.  **Partiality**: `__parse__` is a partial function `str` ⇀ `cls`. No implementation is required to accept every `str`.
+5.  **Discovery**: `T` supports the protocol iff `callable(getattr(T, "__parse__", None))`. Discovery MUST NOT invoke `__parse__`. `__parse__ = None` disables the protocol for that class, per the existing `__hash__ = None` convention.
+6.  **Non-inference**: A consumer MUST NOT infer support from a constructor accepting `str`, from `__str__`, or from `__repr__`. Absent `__parse__`, a consumer SHOULD raise `TypeError`.
+7.  **Inheritance**: `__parse__` is inherited. An inherited implementation MUST construct the class it was invoked on, never a base class. A subclass for which the inherited implementation is invalid SHOULD override it or set it to `None`.
+8.  **Syntax**: Accepted representations (whitespace, case, alternative spellings) are defined by each type; the protocol defines none.
+9.  **Round-trip**: For a type defining both methods, `type(x).__parse__(str(x)) == x` SHOULD hold whenever `str(x)` determines `x` up to `==`. It is not required. It CAN accept `repr(x)`, but it is not required.
+10. **Dispatch**: No syntax or built-in invokes `__parse__` implicitly. `T(text)`, `str()` and annotation evaluation are unchanged.
 
 The protocol is expressible as a `typing.Protocol` ([PEP 544](https://peps.python.org/pep-0544/)). A conforming consumer, not proposed as a built-in:
 
@@ -69,20 +69,20 @@ The protocol is expressible as a `typing.Protocol` ([PEP 544](https://peps.pytho
 
 Initial implementations, each delegating to existing parsing code:
 
-| Type                                                       | Delegates to                                                   |
-|------------------------------------------------------------|----------------------------------------------------------------|
-| `str`                                                      | identity                                                       |
-| `int`, `float`, `complex`                                  | constructor (`int`: base 10 only)                              |
-| `bool`                                                     | new: `"True"` → `True`, `"False"` → `False`, else `ValueError` |
-| `Decimal`, `Fraction`, `UUID`                              | constructor                                                    |
-| `IPv4Address`, `IPv6Address`, `IPv4Network`, `IPv6Network` | constructor                                                    |
-| `date`, `time`, `datetime`                                 | `fromisoformat()`                                              |
+| Type | Delegates to |
+|----|----|
+| `str` | identity |
+| `int`, `float`, `complex` | constructor (`int`: base 10 only) |
+| `bool` | new: `"True"` → `True`, `"False"` → `False`, else `ValueError` |
+| `Decimal`, `Fraction`, `UUID` | constructor |
+| `IPv4Address`, `IPv6Address`, `IPv4Network`, `IPv6Network` | constructor |
+| `date`, `time`, `datetime` | `fromisoformat()` |
 
 Types without a canonical textual representation (`timedelta`, `list`, `dict`, …) are excluded. The protocol names existing grammars; it does not define new ones.
 
 ## Non-goals
 
-- Not a serialization format.
+- No common serialization format: each type keeps its own grammar.
 - No recovery of the target type from the input: the type is a parameter of the operation.
 - No containers, object graphs or recursion: `list[T]` is a consumer's grammar applied over `T.__parse__`.
 - No automatic conversion driven by annotations.
@@ -97,13 +97,13 @@ Opt-in. No existing behavior changes. Two items require review before acceptance
 
 ## Rejected Ideas
 
-| Alternative                           | Rejected because                                                                                                                                                                                |
-|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Constructor as parser                 | `bool("False") is True`. Accepting `str` ≠ interpreting it; undecidable without a declaration.                                                                                                  |
+| Alternative | Rejected because |
+|----|----|
+| Constructor as parser | `bool("False") is True`. Accepting `str` ≠ interpreting it; undecidable without a declaration. |
 | Ordinary class method `from_string()` | Viable; closest contender. A special-method name places the operation in the data model, cannot collide with ordinary API names, and ends the `parse` / `from_str` / `from_text` proliferation. |
-| Built-in `parse(T, text)`             | Requires this protocol underneath. May follow as a separate PEP.                                                                                                                                |
-| Per-consumer registries               | The status quo that leads to the problem statement.                                                                                                                                             |
-| General deserialization protocol      | Different problem (see Non-goals).                                                                                                                                                              |
+| Built-in `parse(T, text)` | Requires this protocol underneath. May follow as a separate PEP. |
+| Per-consumer registries | The status quo that leads to the problem statement. |
+| General deserialization protocol | Different problem (see Non-goals). |
 
 ## Open Issues
 
